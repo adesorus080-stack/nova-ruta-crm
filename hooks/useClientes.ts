@@ -2,11 +2,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { Cliente, ClienteForm } from "@/types/cliente";
+import {
+  Cliente,
+  ClienteForm,
+} from "@/types/cliente";
 
 import {
-  guardarClientes,
   obtenerClientes,
+  guardarClientes,
+  crearCliente,
+  actualizarCliente,
+  eliminarCliente,
+  buscarClientes,
 } from "@/services/cliente.service";
 
 const clientesDemo: Cliente[] = [
@@ -30,64 +37,58 @@ const clientesDemo: Cliente[] = [
 
 export function useClientes() {
   const [clientes, setClientes] =
-    useState<Cliente[]>(clientesDemo);
+    useState<Cliente[]>([]);
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] =
+    useState("");
 
   useEffect(() => {
     const almacenados = obtenerClientes();
 
     if (almacenados.length > 0) {
       setClientes(almacenados);
+    } else {
+      setClientes(clientesDemo);
     }
   }, []);
 
   useEffect(() => {
-    guardarClientes(clientes);
+    if (clientes.length > 0) {
+      guardarClientes(clientes);
+    }
   }, [clientes]);
 
-  function crear(cliente: ClienteForm) {
-    const nuevo: Cliente = {
-      id: Date.now(),
-      ...cliente,
-    };
-
-    setClientes((prev) => [nuevo, ...prev]);
+  function agregar(cliente: ClienteForm) {
+    setClientes((prev) =>
+      crearCliente(prev, cliente)
+    );
   }
 
   function editar(cliente: Cliente) {
     setClientes((prev) =>
-      prev.map((c) =>
-        c.id === cliente.id ? cliente : c
-      )
+      actualizarCliente(prev, cliente)
     );
   }
 
   function eliminar(id: number) {
     setClientes((prev) =>
-      prev.filter((c) => c.id !== id)
+      eliminarCliente(prev, id)
     );
   }
 
-  const filtrados = useMemo(() => {
-    const texto = search.toLowerCase();
-
-    return clientes.filter((c) => {
-      return (
-        c.nombre.toLowerCase().includes(texto) ||
-        c.telefono.toLowerCase().includes(texto) ||
-        c.correo.toLowerCase().includes(texto) ||
-        c.ciudad.toLowerCase().includes(texto) ||
-        c.estado.toLowerCase().includes(texto)
-      );
-    });
+  const clientesFiltrados = useMemo(() => {
+    return buscarClientes(
+      clientes,
+      search
+    );
   }, [clientes, search]);
 
   return {
-    clientes: filtrados,
+    clientes: clientesFiltrados,
+    clientesOriginales: clientes,
     search,
     setSearch,
-    crear,
+    agregar,
     editar,
     eliminar,
   };
