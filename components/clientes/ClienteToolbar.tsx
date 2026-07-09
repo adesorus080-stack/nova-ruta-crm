@@ -1,6 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface Props {
   search: string;
@@ -12,29 +13,20 @@ export default function ClienteToolbar({
   setSearch,
 }: Props) {
   return (
-    <div className="flex-1">
+    <div className="flex items-center gap-4 w-full">
 
-      <h1 className="text-3xl font-bold text-white">
-        Clientes
-      </h1>
-
-      <p className="text-slate-400 mb-6">
-        Administración de clientes
-      </p>
-
-      <div className="relative w-80">
+      <div className="relative w-full max-w-md">
 
         <Search
           size={18}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          className="absolute left-3 top-3 text-gray-400"
         />
 
-        <input
-          type="text"
+        <Input
+          className="pl-10"
+          placeholder="Buscar cliente..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar cliente..."
-          className="w-full rounded-xl border border-slate-700 bg-slate-900 py-2 pl-10 pr-4 text-white outline-none focus:border-blue-500"
         />
 
       </div>
