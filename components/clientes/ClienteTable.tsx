@@ -1,19 +1,24 @@
 "use client";
 
-import { Cliente } from "./types";
+import { Pencil, Trash2 } from "lucide-react";
 
-import ClienteModal from "./ClienteModal";
+import { Button } from "@/components/ui/button";
 
 import {
-  Pencil,
-  Trash2,
-  Eye,
-} from "lucide-react";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+import { Cliente } from "@/types/cliente";
 
 interface Props {
   clientes: Cliente[];
   onEditar: (cliente: Cliente) => void;
-  onEliminar: (id: number) => void;
+  onEliminar: (cliente: Cliente) => void;
 }
 
 export default function ClienteTable({
@@ -22,112 +27,102 @@ export default function ClienteTable({
   onEliminar,
 }: Props) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
+    <div className="rounded-xl border border-slate-800 bg-slate-900 overflow-hidden">
 
-      <table className="w-full">
+      <Table>
 
-        <thead className="bg-slate-800">
+        <TableHeader>
 
-          <tr>
+          <TableRow>
 
-            <th className="p-4 text-left">Nombre</th>
-            <th className="p-4 text-left">Teléfono</th>
-            <th className="p-4 text-left">Correo</th>
-            <th className="p-4 text-left">Ciudad</th>
-            <th className="p-4 text-left">Estado</th>
+            <TableHead>Nombre</TableHead>
 
-            <th className="p-4 text-center">
+            <TableHead>Teléfono</TableHead>
+
+            <TableHead>Correo</TableHead>
+
+            <TableHead>Ciudad</TableHead>
+
+            <TableHead>Estado</TableHead>
+
+            <TableHead className="text-right">
               Acciones
-            </th>
+            </TableHead>
 
-          </tr>
+          </TableRow>
 
-        </thead>
+        </TableHeader>
 
-        <tbody>
+        <TableBody>
 
           {clientes.length === 0 && (
+            <TableRow>
 
-            <tr>
-
-              <td
+              <TableCell
                 colSpan={6}
-                className="p-10 text-center text-slate-400"
+                className="text-center py-10 text-slate-400"
               >
-                No existen clientes registrados.
-              </td>
+                No hay clientes registrados.
+              </TableCell>
 
-            </tr>
-
+            </TableRow>
           )}
 
           {clientes.map((cliente) => (
 
-            <tr
-              key={cliente.id}
-              className="border-t border-slate-800 hover:bg-slate-800/70"
-            >
+            <TableRow key={cliente.id}>
 
-              <td className="p-4 font-medium">
+              <TableCell className="font-medium">
                 {cliente.nombre}
-              </td>
+              </TableCell>
 
-              <td className="p-4">
+              <TableCell>
                 {cliente.telefono}
-              </td>
+              </TableCell>
 
-              <td className="p-4">
+              <TableCell>
                 {cliente.correo}
-              </td>
+              </TableCell>
 
-              <td className="p-4">
+              <TableCell>
                 {cliente.ciudad}
-              </td>
+              </TableCell>
 
-              <td className="p-4">
+              <TableCell>
                 {cliente.estado}
-              </td>
+              </TableCell>
 
-              <td className="p-4">
+              <TableCell>
 
-                <div className="flex justify-center gap-2">
+                <div className="flex justify-end gap-2">
 
-                  <button
-                    className="rounded-lg p-2 hover:bg-slate-700"
-                    title="Ver expediente"
-                  >
-                    <Eye size={18} />
-                  </button>
-
-                  <button
+                  <Button
+                    variant="outline"
+                    size="icon-sm"
                     onClick={() => onEditar(cliente)}
-                    className="rounded-lg p-2 text-yellow-400 hover:bg-slate-700"
-                    title="Editar"
                   >
-                    <Pencil size={18} />
-                  </button>
+                    <Pencil size={16} />
+                  </Button>
 
-                  <button
-                    onClick={() =>
-                      onEliminar(cliente.id)
-                    }
-                    className="rounded-lg p-2 text-red-500 hover:bg-slate-700"
-                    title="Eliminar"
+                  <Button
+                    variant="destructive"
+                    size="icon-sm"
+                    onClick={() => onEliminar(cliente)}
                   >
-                    <Trash2 size={18} />
-                  </button>
+                    <Trash2 size={16} />
+                  </Button>
 
                 </div>
 
-              </td>
+              </TableCell>
 
-            </tr>
+            </TableRow>
 
           ))}
 
-        </tbody>
+        </TableBody>
 
-      </table>
+      </Table>
 
     </div>
   );

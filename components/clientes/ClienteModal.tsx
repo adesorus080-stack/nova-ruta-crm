@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Plus } from "lucide-react";
 
 import {
   Dialog,
@@ -13,82 +11,65 @@ import {
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
-export interface NuevoCliente {
-  id?: number;
-  nombre: string;
-  telefono: string;
-  correo: string;
-  ciudad: string;
-  estado: string;
-}
+import { Plus } from "lucide-react";
+
+import ClienteForm from "./ClienteForm";
+
+import {
+  Cliente,
+  ClienteForm as ClienteFormType,
+  clienteVacio,
+  clienteToForm,
+} from "@/types/cliente";
 
 interface Props {
-  cliente?: NuevoCliente | null;
-  onSave: (cliente: NuevoCliente) => void;
+  cliente?: Cliente | null;
+  onSave: (cliente: ClienteFormType | Cliente) => void;
 }
-
-const formularioVacio: NuevoCliente = {
-  nombre: "",
-  telefono: "",
-  correo: "",
-  ciudad: "",
-  estado: "",
-};
 
 export default function ClienteModal({
   cliente,
   onSave,
 }: Props) {
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState(formularioVacio);
+
+  const [form, setForm] =
+    useState<ClienteFormType>(clienteVacio);
 
   useEffect(() => {
     if (cliente) {
-      setForm(cliente);
+      setForm(clienteToForm(cliente));
     } else {
-      setForm(formularioVacio);
+      setForm(clienteVacio);
     }
   }, [cliente]);
 
-  function actualizar(
-    campo: keyof NuevoCliente,
-    valor: string
-  ) {
-    setForm((prev) => ({
-      ...prev,
-      [campo]: valor,
-    }));
-  }
-
   function guardar() {
-    if (!form.nombre.trim()) {
-      toast.error("Capture el nombre.");
+    if (
+      !form.nombre.trim() ||
+      !form.telefono.trim() ||
+      !form.correo.trim()
+    ) {
       return;
     }
 
-    if (!form.telefono.trim()) {
-      toast.error("Capture el teléfono.");
-      return;
+    if (cliente) {
+      onSave({
+        id: cliente.id,
+        ...form,
+      });
+    } else {
+      onSave(form);
     }
-
-    if (!form.correo.trim()) {
-      toast.error("Capture el correo.");
-      return;
-    }
-
-    onSave(form);
-
-    toast.success(
-      cliente
-        ? "Cliente actualizado."
-        : "Cliente agregado."
-    );
 
     setOpen(false);
-    setForm(formularioVacio);
+    setForm(clienteVacio);
+  }
+
+  function cancelar() {
+    setOpen(false);
+    setForm(clienteVacio);
   }
 
   return (
@@ -96,30 +77,17 @@ export default function ClienteModal({
 
       <DialogTrigger asChild>
 
-        {cliente ? (
+        <Button className="gap-2">
 
-          <Button
-            variant="outline"
-            size="sm"
-          >
-            Editar
-          </Button>
+          <Plus size={18} />
 
-        ) : (
+          {cliente ? "Editar" : "Nuevo Cliente"}
 
-          <Button className="gap-2">
-
-            <Plus size={18} />
-
-            Nuevo Cliente
-
-          </Button>
-
-        )}
+        </Button>
 
       </DialogTrigger>
 
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-2xl">
 
         <DialogHeader>
 
@@ -133,106 +101,22 @@ export default function ClienteModal({
 
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-5">
-
-          <div>
-
-            <Label>Nombre *</Label>
-
-            <Input
-              value={form.nombre}
-              onChange={(e) =>
-                actualizar(
-                  "nombre",
-                  e.target.value
-                )
-              }
-            />
-
-          </div>
-
-          <div>
-
-            <Label>Teléfono *</Label>
-
-            <Input
-              value={form.telefono}
-              onChange={(e) =>
-                actualizar(
-                  "telefono",
-                  e.target.value
-                )
-              }
-            />
-
-          </div>
-
-          <div className="col-span-2">
-
-            <Label>Correo *</Label>
-
-            <Input
-              type="email"
-              value={form.correo}
-              onChange={(e) =>
-                actualizar(
-                  "correo",
-                  e.target.value
-                )
-              }
-            />
-
-          </div>
-
-          <div>
-
-            <Label>Ciudad</Label>
-
-            <Input
-              value={form.ciudad}
-              onChange={(e) =>
-                actualizar(
-                  "ciudad",
-                  e.target.value
-                )
-              }
-            />
-
-          </div>
-
-          <div>
-
-            <Label>Estado</Label>
-
-            <Input
-              value={form.estado}
-              onChange={(e) =>
-                actualizar(
-                  "estado",
-                  e.target.value
-                )
-              }
-            />
-
-          </div>
-
-        </div>
+        <ClienteForm
+          form={form}
+          setForm={setForm}
+        />
 
         <div className="flex justify-end gap-3 pt-6">
 
           <Button
             variant="outline"
-            onClick={() => setOpen(false)}
+            onClick={cancelar}
           >
             Cancelar
           </Button>
 
           <Button onClick={guardar}>
-
-            {cliente
-              ? "Actualizar"
-              : "Guardar"}
-
+            Guardar Cliente
           </Button>
 
         </div>

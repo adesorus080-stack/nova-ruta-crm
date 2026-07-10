@@ -1,132 +1,84 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 
 import MainLayout from "@/components/layout/MainLayout";
 import ClienteToolbar from "@/components/clientes/ClienteToolbar";
 import ClienteTable from "@/components/clientes/ClienteTable";
-import ClienteModal, {
-  NuevoCliente,
-} from "@/components/clientes/ClienteModal";
+import ClienteModal from "@/components/clientes/ClienteModal";
+import DeleteDialog from "@/components/clientes/DeleteDialog";
+import ClienteStats from "@/components/clientes/ClienteStats";
 
-import { Cliente } from "@/components/clientes/types";
-
-const STORAGE_KEY = "nova-ruta-clientes";
-
-const clientesIniciales: Cliente[] = [
-  {
-    id: 1,
-    nombre: "Juan Pérez",
-    telefono: "8112345678",
-    correo: "juan@email.com",
-    ciudad: "Monterrey",
-    estado: "Nuevo León",
-  },
-  {
-    id: 2,
-    nombre: "María López",
-    telefono: "8188888888",
-    correo: "maria@email.com",
-    ciudad: "Guadalajara",
-    estado: "Jalisco",
-  },
-];
+import { Cliente, ClienteForm } from "@/types/cliente";
+import { useClientes } from "@/hooks/useClientes";
 
 export default function ClientesPage() {
-  const [search, setSearch] = useState("");
+  const {
+    clientes,
+    clientesOriginales,
+    search,
+    setSearch,
+    agregar,
+    editar,
+    eliminar,
+  } = useClientes();
 
-  const [clientes, setClientes] =
-    useState<Cliente[]>(clientesIniciales);
-
-  const [clienteEditar, setClienteEditar] =
+  const [clienteSeleccionado, setClienteSeleccionado] =
     useState<Cliente | null>(null);
 
-  useEffect(() => {
-    const data = localStorage.getItem(STORAGE_KEY);
+  const [clienteEliminar, setClienteEliminar] =
+    useState<Cliente | null>(null);
 
-    if (data) {
-      setClientes(JSON.parse(data));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(clientes)
-    );
-  }, [clientes]);
-
-  function guardarCliente(cliente: NuevoCliente) {
-    if (cliente.id) {
-      setClientes((prev) =>
-        prev.map((c) =>
-          c.id === cliente.id ? { ...cliente } : c
-        )
-      );
-
-      setClienteEditar(null);
-
-      return;
+  function guardarCliente(data: ClienteForm | Cliente) {
+    if ("id" in data) {
+      editar(data);
+    } else {
+      agregar(data);
     }
 
-    const nuevo: Cliente = {
-      ...cliente,
-      id: Date.now(),
-    };
-
-    setClientes((prev) => [nuevo, ...prev]);
+    setClienteSeleccionado(null);
   }
 
-  function eliminarCliente(id: number) {
-    const confirmar = window.confirm(
-      "¿Desea eliminar este cliente?"
-    );
+  function confirmarEliminar() {
+    if (!clienteEliminar) return;
 
-    if (!confirmar) return;
-
-    setClientes((prev) =>
-      prev.filter((c) => c.id !== id)
-    );
+    eliminar(clienteEliminar.id);
+    setClienteEliminar(null);
   }
-
-  const clientesFiltrados = useMemo(() => {
-    const texto = search.toLowerCase();
-
-    return clientes.filter((cliente) => {
-      return (
-        cliente.nombre.toLowerCase().includes(texto) ||
-        cliente.telefono.toLowerCase().includes(texto) ||
-        cliente.correo.toLowerCase().includes(texto) ||
-        cliente.ciudad.toLowerCase().includes(texto) ||
-        cliente.estado.toLowerCase().includes(texto)
-      );
-    });
-  }, [clientes, search]);
 
   return (
     <MainLayout>
       <div className="space-y-6">
-
         <div className="flex items-center justify-between">
-
           <ClienteToolbar
             search={search}
             setSearch={setSearch}
           />
 
           <ClienteModal
-            cliente={clienteEditar}
+            cliente={clienteSeleccionado}
             onSave={guardarCliente}
           />
-
         </div>
 
+        <ClienteStats clientes={clientesOriginales} />
+
         <ClienteTable
-          clientes={clientesFiltrados}
-          onEditar={setClienteEditar}
-          onEliminar={eliminarCliente}
+          clientes={clientes}
+          onEditar={(cliente) =>
+            setClienteSeleccionado(cliente)
+          }
+          onEliminar={(cliente) =>
+            setClienteEliminar(cliente)
+          }
         />
 
+        <DeleteDialog
+          open={clienteEliminar !== null}
+          cliente={clienteEliminar}
+          onClose={() => setClienteEliminar(null)}
+          onConfirm={confirmarEliminar}
+        />
       </div>
     </MainLayout>
   );
