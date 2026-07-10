@@ -1,61 +1,132 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 import {
   LayoutDashboard,
   Users,
+  FolderTree,
   FileText,
-  Plane,
+  CalendarDays,
   CreditCard,
-  Calendar,
+  Building2,
   BarChart3,
   Settings,
 } from "lucide-react";
 
 const menu = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Clientes", href: "/clientes", icon: Users },
-  { name: "Cotizaciones", href: "/cotizaciones", icon: FileText },
-  { name: "Reservas", href: "/reservas", icon: Plane },
-  { name: "Pagos", href: "/pagos", icon: CreditCard },
-  { name: "Calendario", href: "/calendario", icon: Calendar },
-  { name: "Reportes", href: "/reportes", icon: BarChart3 },
-  { name: "Configuración", href: "/configuracion", icon: Settings },
+  {
+    titulo: "Dashboard",
+    ruta: "/",
+    icono: LayoutDashboard,
+  },
+  {
+    titulo: "Clientes",
+    ruta: "/clientes",
+    icono: Users,
+  },
+  {
+    titulo: "Catálogos",
+    ruta: "/catalogos",
+    icono: FolderTree,
+  },
+  {
+    titulo: "Cotizaciones",
+    ruta: "/cotizaciones",
+    icono: FileText,
+  },
+  {
+    titulo: "Reservas",
+    ruta: "/reservas",
+    icono: CalendarDays,
+  },
+  {
+    titulo: "Pagos",
+    ruta: "/pagos",
+    icono: CreditCard,
+  },
+  {
+    titulo: "Proveedores",
+    ruta: "/proveedores",
+    icono: Building2,
+  },
+  {
+    titulo: "Reportes",
+    ruta: "/reportes",
+    icono: BarChart3,
+  },
+  {
+    titulo: "Configuración",
+    ruta: "/configuracion",
+    icono: Settings,
+  },
 ];
 
 export default function Sidebar() {
+  const pathname = usePathname();
+
   return (
-    <aside className="w-72 bg-slate-900 border-r border-slate-800 flex flex-col">
-      <div className="p-8 border-b border-slate-800">
-        <h1 className="text-3xl font-bold text-amber-400">
+    <aside className="flex h-screen w-72 flex-col border-r border-slate-800 bg-slate-950">
+
+      <div className="border-b border-slate-800 p-6">
+
+        <h1 className="text-2xl font-bold text-amber-400">
           NOVA RUTA
         </h1>
 
-        <p className="text-slate-400 text-sm mt-2">
-          CRM para Agencias de Viajes
+        <p className="mt-1 text-sm text-slate-400">
+          CRM · ERP Travel
         </p>
+
       </div>
 
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 space-y-2 p-4">
+
         {menu.map((item) => {
-          const Icon = item.icon;
+
+          const Icon = item.icono;
+
+          const activo =
+            pathname === item.ruta ||
+            pathname.startsWith(item.ruta + "/");
 
           return (
             <Link
-              key={item.name}
-              href={item.href}
-              className="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-300 transition hover:bg-slate-800 hover:text-white"
+              key={item.ruta}
+              href={item.ruta}
+              className={`flex items-center gap-3 rounded-xl px-4 py-3 transition ${
+                activo
+                  ? "bg-amber-500 text-slate-950 font-semibold"
+                  : "text-slate-300 hover:bg-slate-900"
+              }`}
             >
               <Icon size={20} />
-              <span>{item.name}</span>
+
+              {item.titulo}
+
             </Link>
           );
         })}
+
       </nav>
 
-      <div className="border-t border-slate-800 p-5 text-xs text-slate-500">
-        NOVA RUTA CRM v0.1
+      <div className="border-t border-slate-800 p-4">
+
+        <div className="rounded-xl bg-slate-900 p-4">
+
+          <p className="text-xs text-slate-400">
+            NOVA RUTA CRM
+          </p>
+
+          <p className="mt-1 font-semibold text-white">
+            Versión 0.3.3
+          </p>
+
+        </div>
+
       </div>
+
     </aside>
   );
 }
